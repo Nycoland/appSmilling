@@ -1,35 +1,39 @@
 import 'package:app_smilling/services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:app_smilling/screens/homeScreen.dart';
-import 'package:app_smilling/screens/loginScreen.dart';
+import 'package:app_smilling/screens/home_screen.dart';
+import 'package:app_smilling/screens/login_screen.dart';
 
 void main() {
-  runApp(const AppSmilling());
+  runApp(AppSmilling());
 }
 
 class AppSmilling extends StatelessWidget {
-  const AppSmilling({super.key});
-
-  Future<Widget> _checkAuth() async {
-    final isLoggedIn = await ApiService.isAuthenticated();
-    return isLoggedIn ? HomeScreen() : LoginScreen();
-  }
+  final ApiService _apiService = ApiService();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Auth',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      title: 'Smilling App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
       home: FutureBuilder(
-        future: _checkAuth(),
+        future: _apiService.isLoggedIn(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
-          } else {
-            return snapshot.data as Widget;
+            return Scaffold(body: Center(child: CircularProgressIndicator()));
           }
+
+          final isLoggedIn = snapshot.data ?? false;
+          return isLoggedIn ? HomeScreen() : LoginScreen();
         },
       ),
+      routes: {
+        '/login': (context) => LoginScreen(),
+        '/home': (context) => HomeScreen(),
+      },
     );
   }
 }
