@@ -37,3 +37,28 @@ class AppSmilling extends StatelessWidget {
     );
   }
 }
+
+//Teste sem precisar logar
+
+// void main() {
+//   runApp(AppSmilling());
+// }
+
+// class AppSmilling extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Smilling App',
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         primarySwatch: Colors.purple,
+//         visualDensity: VisualDensity.adaptivePlatformDensity,
+//       ),
+//       home: HomeScreen(), // <--- A tela que você quiser abrir direto
+//       routes: {
+//         '/login': (context) => LoginScreen(),
+//         '/home': (context) => HomeScreen(),
+//       },
+//     );
+//   }
+// }
