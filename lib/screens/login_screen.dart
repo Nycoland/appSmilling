@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_smilling/services/api_service.dart';
+import 'package:app_smilling/services/api/auth_service.dart';
 import 'package:app_smilling/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,7 +13,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _apiService = ApiService();
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -24,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _checkAutoLogin() async {
-    final isLoggedIn = await _apiService.isLoggedIn();
+    final isLoggedIn = await AuthService.isLoggedIn();
     if (isLoggedIn && mounted) {
       _navigateToHome();
     }
@@ -42,21 +41,21 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final success = await _apiService.login(
+      final result = await AuthService.login(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
 
       if (!mounted) return;
 
-      if (success) {
+      if (result['success'] == true) {
         _navigateToHome();
       } else {
-        _showErrorMessage('Credenciais inválidas');
+        _showErrorMessage(result['message'] ?? 'Erro ao fazer login');
       }
     } catch (e) {
       if (!mounted) return;
-      _showErrorMessage('Erro ao conectar com o servidor');
+      _showErrorMessage('Erro inesperado: ${e.toString()}');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
