@@ -16,7 +16,6 @@ class _DoencasScreenState extends State<DoencasScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
-  // Severity levels
   final List<Map<String, String>> _severityLevels = [
     {'title': 'Leve', 'value': 'leve'},
     {'title': 'Moderado', 'value': 'moderado'},
@@ -31,10 +30,7 @@ class _DoencasScreenState extends State<DoencasScreen> {
   }
 
   Future<void> _loadDoencas() async {
-    setState(() {
-      _isLoading = true;
-    });
-
+    setState(() => _isLoading = true);
     try {
       final doencas = await DoencaService.getDoencas();
       setState(() {
@@ -43,9 +39,7 @@ class _DoencasScreenState extends State<DoencasScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao carregar doenças: ${e.toString()}')),
       );
@@ -55,15 +49,13 @@ class _DoencasScreenState extends State<DoencasScreen> {
   void _filterDoencas(String query) {
     setState(() {
       _searchQuery = query.toLowerCase();
-      if (_searchQuery.isEmpty) {
-        _filteredDoencas = _doencas;
-      } else {
-        _filteredDoencas = _doencas.where((doenca) {
-          return doenca.nome.toLowerCase().contains(_searchQuery) ||
-              doenca.sintomas.toLowerCase().contains(_searchQuery) ||
-              doenca.nivelGravidade.toLowerCase().contains(_searchQuery);
-        }).toList();
-      }
+      _filteredDoencas = _searchQuery.isEmpty
+          ? _doencas
+          : _doencas.where((d) =>
+              d.nome.toLowerCase().contains(_searchQuery) ||
+              d.sintomas.toLowerCase().contains(_searchQuery) ||
+              (d.prevencao?.toLowerCase().contains(_searchQuery) ?? false) ||
+              d.nivelGravidade.toLowerCase().contains(_searchQuery)).toList();
     });
   }
 
@@ -77,16 +69,11 @@ class _DoencasScreenState extends State<DoencasScreen> {
 
   Color _getSeverityColor(String severity) {
     switch (severity) {
-      case 'leve':
-        return Colors.green;
-      case 'moderado':
-        return Colors.orange;
-      case 'grave':
-        return Colors.red;
-      case 'muito_grave':
-        return Colors.purple;
-      default:
-        return Colors.grey;
+      case 'leve': return Colors.green;
+      case 'moderado': return Colors.orange;
+      case 'grave': return Colors.red;
+      case 'muito_grave': return Colors.purple;
+      default: return Colors.grey;
     }
   }
 
@@ -112,11 +99,10 @@ class _DoencasScreenState extends State<DoencasScreen> {
           children: [
             Text(
               'Conheça as principais doenças que podem afetar seu pet, seus sintomas e níveis de gravidade.',
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black87),
             ),
             const SizedBox(height: 16),
             
-            // Barra de pesquisa
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -139,7 +125,6 @@ class _DoencasScreenState extends State<DoencasScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Lista de doenças
             Expanded(
               child: _isLoading
                   ? const Center(
@@ -160,10 +145,7 @@ class _DoencasScreenState extends State<DoencasScreen> {
                         )
                       : ListView.builder(
                           itemCount: _filteredDoencas.length,
-                          itemBuilder: (context, index) {
-                            final doenca = _filteredDoencas[index];
-                            return _buildDoencaCard(doenca);
-                          },
+                          itemBuilder: (context, index) => _buildDoencaCard(_filteredDoencas[index]),
                         ),
             ),
           ],
@@ -176,83 +158,94 @@ class _DoencasScreenState extends State<DoencasScreen> {
     return Card(
       elevation: 6,
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {},
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.orange[100],
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
+            // Cabeçalho
+            Row(
+              children: [
+                const Icon(Icons.warning, color: Colors.orange, size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    doenca.nome,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.warning, color: Colors.orange, size: 28),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      doenca.nome,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                Chip(
+                  backgroundColor: _getSeverityColor(doenca.nivelGravidade),
+                  label: Text(
+                    _formatSeverity(doenca.nivelGravidade),
+                    style: const TextStyle(color: Colors.white),
                   ),
-                  Chip(
-                    backgroundColor: _getSeverityColor(doenca.nivelGravidade),
-                    label: Text(
-                      _formatSeverity(doenca.nivelGravidade),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.medical_services, color: Colors.orange, size: 24),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Sintomas:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              doenca.sintomas,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            const SizedBox(height: 16),
+            
+            // Sintomas
+            _buildInfoSection(
+              icon: Icons.medical_services,
+              iconColor: Colors.orange,
+              title: 'Sintomas',
+              content: doenca.sintomas,
+            ),
+            const SizedBox(height: 16),
+            
+            // Prevenção
+            _buildInfoSection(
+              icon: Icons.shield,
+              iconColor: Colors.green,
+              title: 'Prevenção',
+              content: doenca.prevencao ?? 'Não informado',
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoSection({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String content,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: iconColor, size: 24),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 32),
+          child: Text(
+            content,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black54,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
