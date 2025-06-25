@@ -83,7 +83,7 @@ class _DoencasScreenState extends State<DoencasScreen> {
       appBar: AppBar(
         title: const Row(
           children: [
-            Icon(Icons.warning, color: Color(0xFF7681F8)),
+            Icon(Icons.warning, color: Colors.orange),
             SizedBox(width: 8),
             Text('Guia de Doenças', style: TextStyle(fontWeight: FontWeight.bold)),
           ],
@@ -91,64 +91,67 @@ class _DoencasScreenState extends State<DoencasScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Conheça as principais doenças que podem afetar seu pet, seus sintomas e níveis de gravidade.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black87),
-            ),
-            const SizedBox(height: 16),
-            
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Pesquisar Doenças',
-                prefixIcon: const Icon(Icons.search),
-                border: const OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.grey[200],
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _filterDoencas('');
-                        },
-                      )
-                    : null,
+      body: RefreshIndicator(
+        onRefresh: _loadDoencas,
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Conheça as principais doenças que podem afetar seu pet, seus sintomas e níveis de gravidade.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black87),
               ),
-              onChanged: _filterDoencas,
-            ),
-            const SizedBox(height: 16),
-            
-            Expanded(
-              child: _isLoading
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 16),
-                          Text('Carregando doenças...'),
-                        ],
-                      ),
-                    )
-                  : _filteredDoencas.isEmpty
-                      ? Center(
-                          child: _doencas.isEmpty
-                              ? const Text('Nenhuma doença cadastrada ainda.')
-                              : const Text('Nenhuma doença encontrada.'),
+              const SizedBox(height: 16),
+              
+              TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  labelText: 'Pesquisar Doenças',
+                  prefixIcon: const Icon(Icons.search),
+                  border: const OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _filterDoencas('');
+                          },
                         )
-                      : ListView.builder(
-                          itemCount: _filteredDoencas.length,
-                          itemBuilder: (context, index) => _buildDoencaCard(_filteredDoencas[index]),
+                      : null,
+                ),
+                onChanged: _filterDoencas,
+              ),
+              const SizedBox(height: 16),
+              
+              Expanded(
+                child: _isLoading
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text('Carregando doenças...'),
+                          ],
                         ),
-            ),
-          ],
+                      )
+                    : _filteredDoencas.isEmpty
+                        ? Center(
+                            child: _doencas.isEmpty
+                                ? const Text('Nenhuma doença cadastrada ainda.')
+                                : const Text('Nenhuma doença encontrada.'),
+                          )
+                        : ListView.builder(
+                            itemCount: _filteredDoencas.length,
+                            itemBuilder: (context, index) => _buildDoencaCard(_filteredDoencas[index]),
+                          ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -11,9 +11,9 @@ class ComoAjudarScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFFFFFFF),
         title: const Row(
           children: [
-            Icon(Icons.volunteer_activism, size: 28, color: Color(0xFF8E2DE2)),
+            Icon(Icons.volunteer_activism, size: 28, color: Colors.red),
             SizedBox(width: 8),
-            Text('Como Ajudar?', style: TextStyle(color: Color(0xFF8E2DE2))),
+            Text('Como Ajudar?', style: TextStyle(color: Colors.black)),
           ],
         ),
         iconTheme: const IconThemeData(color: Color(0xFF8E2DE2)),

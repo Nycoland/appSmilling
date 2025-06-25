@@ -66,7 +66,7 @@ class _ClinicasScreenState extends State<ClinicasScreen> {
       appBar: AppBar(
         title: const Row(
           children: [
-            Icon(Icons.local_hospital, color: Color(0xFF7681F8)),
+            Icon(Icons.local_hospital, color: Colors.blue),
             SizedBox(width: 8),
             Text('Clínicas Veterinárias', style: TextStyle(fontWeight: FontWeight.bold)),
           ],
@@ -74,69 +74,70 @@ class _ClinicasScreenState extends State<ClinicasScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Encontre as melhores clínicas para cuidar da saúde do seu pet.',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 16),
-            
-            // Barra de pesquisa
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Pesquisar Clínicas',
-                prefixIcon: const Icon(Icons.search),
-                border: const OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.grey[200],
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _filterClinicas('');
-                        },
-                      )
-                    : null,
+      body: RefreshIndicator(
+        onRefresh: _loadClinicas,
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Encontre as melhores clínicas para cuidar da saúde do seu pet.',
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
-              onChanged: _filterClinicas,
-            ),
-            const SizedBox(height: 16),
-            
-            // Lista de clínicas
-            Expanded(
-              child: _isLoading
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 16),
-                          Text('Carregando clínicas...'),
-                        ],
-                      ),
-                    )
-                  : _filteredClinicas.isEmpty
-                      ? Center(
-                          child: _clinicas.isEmpty
-                              ? const Text('Nenhuma clínica cadastrada ainda.')
-                              : const Text('Nenhuma clínica encontrada.'),
-                        )
-                      : ListView.builder(
-                          itemCount: _filteredClinicas.length,
-                          itemBuilder: (context, index) {
-                            final clinica = _filteredClinicas[index];
-                            return _buildClinicaCard(clinica);
+              const SizedBox(height: 16),
+              
+              TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  labelText: 'Pesquisar Clínicas',
+                  prefixIcon: const Icon(Icons.search),
+                  border: const OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _filterClinicas('');
                           },
+                        )
+                      : null,
+                ),
+                onChanged: _filterClinicas,
+              ),
+              const SizedBox(height: 16),
+              
+              Expanded(
+                child: _isLoading
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text('Carregando clínicas...'),
+                          ],
                         ),
-            ),
-          ],
+                      )
+                    : _filteredClinicas.isEmpty
+                        ? Center(
+                            child: _clinicas.isEmpty
+                                ? const Text('Nenhuma clínica cadastrada ainda.')
+                                : const Text('Nenhuma clínica encontrada.'),
+                          )
+                        : ListView.builder(
+                            itemCount: _filteredClinicas.length,
+                            itemBuilder: (context, index) {
+                              final clinica = _filteredClinicas[index];
+                              return _buildClinicaCard(clinica);
+                            },
+                          ),
+              ),
+            ],
+          ),
         ),
       ),
     );
